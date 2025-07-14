@@ -2,6 +2,7 @@ package com.vending.machine.service;
 
 import com.vending.machine.dto.BuyRequest;
 import com.vending.machine.dto.DepositRequest;
+import com.vending.machine.exception.GlobalException;
 import com.vending.machine.model.Product;
 import com.vending.machine.model.User;
 import com.vending.machine.repository.ProductRepository;
@@ -29,7 +30,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String deposit(DepositRequest request, String username) {
         if (!VALID_COINS.contains(request.getCoin())) {
-            throw new IllegalArgumentException("Invalid coin: must be one of 5, 10, 20, 50, 100.");
+            throw new GlobalException("Invalid coin: must be one of 5, 10, 20, 50, 100.");
         }
 
         User user = getUser(username);
@@ -42,21 +43,21 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String buy(BuyRequest request, String username) {
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+                .orElseThrow(() -> new GlobalException("Product not found"));
 
         if (request.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than zero.");
+            throw new GlobalException("Quantity must be greater than zero.");
         }
 
         if (product.getAmountAvailable() < request.getQuantity()) {
-            throw new IllegalArgumentException("Not enough product in stock.");
+            throw new GlobalException("Not enough product in stock.");
         }
 
         int totalCost = product.getCost().intValue() * request.getQuantity();
         User user = getUser(username);
 
         if (user.getDeposit() < totalCost) {
-            throw new IllegalArgumentException("Insufficient deposit.");
+            throw new GlobalException("Insufficient deposit.");
         }
 
         // Perform transaction
@@ -81,7 +82,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private User getUser(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new GlobalException("User not found"));
     }
 
     private String formatChange(int deposit) {
