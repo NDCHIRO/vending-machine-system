@@ -46,7 +46,7 @@ Update `application.properties`:
 ## properties
 spring.datasource.url=jdbc:mysql://localhost:3306/vending_machine
 spring.datasource.username=root
-spring.datasource.password=yourpassword
+spring.datasource.password=password
 spring.jpa.hibernate.ddl-auto=update
 
 
